@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Import Stylesheet -->
+    <link rel="stylesheet" href=".src/css/main.css">
+    <!--Import Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <title>Lift Simulation</title>
+</head>
+
+<body>
+    <header>
+        <h1 class="heading">LIFT SIMULATOR</h1>
+        <ul>
+            <li><em>Enter the number of lifts and floors to start the simulation</em></li>
+            <li><span class="highlight">Note:</span> <em>Number of lifts and floors entered should be more than
+                    zero</em></li>
+        </ul>
+    </header>
+
+    <main class="lift-simulation-container">
+        <form class="input-form">
+            <label for="no-of-floors">Floors:
+                <input type="number" name="floors" id="no-of-floors" required>
+            </label>
+            <label for="no-of-lifts">Lifts:
+                <input type="number" name="lifts" id="no-of-lifts" required>
+            </label>
+            <button type="submit" class="generate-lift-btn">Generate</button>
+        </form>
+        <div class="lift-container">
+            <div class="floor-container base-floor">
+                <div class="button-container">
+                    <button data-floor="0" class="up">Up</button>
+                    <button data-floor="0" class="down">Down</button>
+                </div>
+                <h2 class="floor-number">Floor-0</h2>
+            </div>
+        </div>
+
+    </main>
+</body>
+<script src=".src/js/main.js"></script>
+
+</html>

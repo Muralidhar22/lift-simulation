@@ -1,0 +1,74 @@
+*,
+*::after,
+*::before {
+    box-sizing: border-box;
+}
+
+html {
+    font-family: 'Roboto', sans-serif;
+}
+
+a,
+button,
+input {
+    font-family: inherit;
+}
+
+/* utilities */
+.highlight {
+    background: yellow;
+}
+
+/* input form styling */
+.input-form {
+    display: grid;
+    width: fit-content;
+    justify-items: start;
+    gap: .5rem;
+}
+
+/* lift button styling*/
+.button-container {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    gap: .65rem;
+    margin: 1rem;
+}
+
+.button-container button {
+    border: none;
+    border-radius: .125rem;
+    color: white;
+    padding: .5em;
+}
+
+.button-container .up {
+    background: green;
+
+}
+
+.button-container .down {
+    background: red;
+}
+
+
+
+/* floor styling */
+.floor-number::before {
+    content: '';
+    display: inline-block;
+    width: 80%;
+    height: 5px;
+    background: black;
+}
+
+/* lift styling */
+.lift-container {
+    position: relative;
+}
+
+.lift:first-child {
+    position: absolute;
+    left:25%; 
+}
