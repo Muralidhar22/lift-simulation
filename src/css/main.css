@@ -41,6 +41,7 @@ input {
     border-radius: .125rem;
     color: white;
     padding: .5em;
+    cursor: pointer;
 }
 
 .button-container .up {
@@ -68,7 +69,12 @@ input {
     position: relative;
 }
 
-.lift:first-child {
+.lift {
     position: absolute;
-    left:25%; 
+    left: 25%;
+    width: 40px;
+    height: 50px;
+    background: royalblue;
+    bottom: 0;
+    margin-bottom: 2rem;
 }
