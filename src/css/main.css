@@ -2,6 +2,7 @@
 *::after,
 *::before {
     box-sizing: border-box;
+    margin: 0;
 }
 
 html {
@@ -25,6 +26,11 @@ input {
     width: fit-content;
     justify-items: start;
     gap: .5rem;
+    margin: 1rem;
+}
+
+.lift-simulation-container {
+    margin: 1rem;
 }
 
 /* lift button styling*/
@@ -33,7 +39,6 @@ input {
     flex-direction: column;
     width: fit-content;
     gap: .65rem;
-    margin: 1rem;
 }
 
 .button-container button {
@@ -56,12 +61,12 @@ input {
 
 
 /* floor styling */
-.floor-number::before {
-    content: '';
-    display: inline-block;
-    width: 80%;
-    height: 5px;
-    background: black;
+.floor-container {
+    border-bottom: 2px solid black;
+}
+
+.floor-number {
+    text-align: right;
 }
 
 /* lift styling */
@@ -76,5 +81,5 @@ input {
     height: 50px;
     background: royalblue;
     bottom: 0;
-    margin-bottom: 2rem;
+    /* margin-bottom: 2rem; */
 }

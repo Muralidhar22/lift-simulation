@@ -61,7 +61,7 @@ function addLiftsAndFloors(nof,nol){
     document.querySelectorAll(".lift").forEach((element,index) => {
         storeData[index] = {id:element.dataset.lift, pos: 0 }
     })
-    console.log(storeData)
+    
 
     document.querySelectorAll(".button-container .up").forEach(element => {
         element.addEventListener("click",moveLiftUp)
@@ -73,14 +73,26 @@ function addLiftsAndFloors(nof,nol){
 }
 inputForm.addEventListener("submit",liftSimulationGenerator)
 
+// disabling buttons while a lift is moving
+function disableButtons(){
+    document.querySelectorAll(".button-container *").forEach(el => {
+        el.disabled = false;
+        el.style.opacity = "0.5"
+    })
+}
+// enabling buttons when no lift is moving
+function enableButtons(){
+    document.querySelectorAll(".button-container *").forEach(el => {
+        el.disabled = false;
+        el.style.opacity = "1"
+    })
+}
+
 // moving lift when pressed on up button
 function moveLiftUp(event){
     let id = null
-    console.log("lift called on floor - ",event.target.dataset.floor)
     function findAvailableLift() {
         for(let i = 0;i<storeData.length;i++){
-            console.log(event.target.dataset.floor > storeData[i].pos)
-            console.log("floor:",event.target.dataset.floor,"lift:",storeData[i].pos)
             if(event.target.dataset.floor > storeData[i].pos){
                 return storeData[i].id
             }
@@ -89,40 +101,39 @@ function moveLiftUp(event){
     }
 
     const availableLift = findAvailableLift()
-    console.log("available lift",availableLift)
+   console.log(availableLift)
     if(availableLift !== 0){
-        const elem = document.querySelector(`[data-lift="${availableLift}"]`).getBoundingClientRect()
-    
-        const floorRect = document.querySelector(`[data-floor="${event.target.dataset.floor}"].floor-container`).getBoundingClientRect()
-        console.log("elem:",elem,"floorHeight:",floorRect)
-        console.log(document.querySelector(`[data-floor="${event.target.dataset.floor}"]`))
-        clearInterval(id);
-        id = setInterval(liftMovement, 10);
+        const elem = document.querySelector(`[data-lift="${availableLift}"]`)
+        const floorHeight = document.querySelector(`[data-floor="${event.target.dataset.floor}"].floor-container`).offsetHeight
+        let pos = (elem.style.bottom).match(/(\d+)/) ? (elem.style.bottom).match(/(\d+)/)[0] : 0
+        let counter = 0
         
+        disableButtons()
+        id = setInterval(liftMovement, 10);
+        baseCaseVal = floorHeight * (event.target.dataset.floor - storeData[availableLift-1].pos) 
+       
         function liftMovement() {
-            if (Math.round(elem.bottom) <= Math.round(floorRect.y)) {
-                console.log("base case")
-               console.log(elem.bottom,floorRect.bottom)
+            if (counter === baseCaseVal) {
                 storeData[availableLift-1].pos = Number(event.target.dataset.floor)
-                console.log("position of lift:",storeData[availableLift-1].pos)
-                clearInterval(id);
+                enableButtons()
+                clearInterval(id)
             } 
             else {
-                console.log("moving")
-                elem.y-=1;  
-                document.querySelector(`[data-lift="${availableLift}"]`).style.top = elem.y + "px"
+                counter++;
+                pos++; 
+                elem.style.bottom = pos + "px"
             }
         }
+    }
+    else{
+        alert("No lifts available")
     }
 }
 // moving lift when pressed on down button
 function moveLiftDown(event){
     let id = null
-    console.log("lift called on floor - ",event.target.dataset.floor)
     function findAvailableLift() {
         for(let i = 0;i<storeData.length;i++){
-            console.log(event.target.dataset.floor < storeData[i].pos)
-            console.log("floor:",event.target.dataset.floor,"lift:",storeData[i].pos)
             if(event.target.dataset.floor < storeData[i].pos){
                 return storeData[i].id
             }
@@ -131,28 +142,32 @@ function moveLiftDown(event){
     }
 
     const availableLift = findAvailableLift()
-    console.log("available lift",availableLift)
+   
     if(availableLift !== 0){
-        const elem = document.querySelector(`[data-lift="${availableLift}"]`).getBoundingClientRect()
-    
-        const floorHeight = document.querySelector(`[data-floor="${event.target.dataset.floor}"].floor-container`).getBoundingClientRect()
-        console.log("elem:",elem,"floorHeight:",floorHeight)
-        clearInterval(id);
+        const elem = document.querySelector(`[data-lift="${availableLift}"]`)
+        const floorHeight = document.querySelector(`[data-floor="${event.target.dataset.floor}"].floor-container`).offsetHeight
+        let pos = (elem.style.bottom).match(/(\d+)/) ? (elem.style.bottom).match(/(\d+)/)[0] : 0
+        let counter = 0
+        
+        disableButtons()
         id = setInterval(liftMovement, 10);
+        baseCaseVal = floorHeight * (storeData[availableLift-1].pos - event.target.dataset.floor) 
+     
         function liftMovement() {
-            if (elem.bottom >= floorHeight.bottom) {
-                console.log("base case")
-               
+            if (counter === baseCaseVal) {
                 storeData[availableLift-1].pos = Number(event.target.dataset.floor)
-                console.log("position of lift:",storeData[availableLift-1].pos)
-                clearInterval(id);
+                enableButtons()
+                clearInterval(id)
             } 
             else {
-                console.log("moving")
-                elem.y+=1;  
-                document.querySelector(`[data-lift="${availableLift}"]`).style.top = elem.y + "px"
+                counter++;
+                pos--; 
+                elem.style.bottom = pos + "px"
             }
         }
+    }
+    else{
+        alert("No lifts available")
     }
     
 }
