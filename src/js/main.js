@@ -59,7 +59,7 @@ function addLiftsAndFloors(nof,nol){
     }
     // initialising lift positions
     document.querySelectorAll(".lift").forEach((element,index) => {
-        storeData[index] = {id:element.dataset.lift, pos: 0 }
+        storeData[index] = {id:element.dataset.lift, pos: 0, busy: false ,target: null}
     })
     
 
@@ -73,27 +73,13 @@ function addLiftsAndFloors(nof,nol){
 }
 inputForm.addEventListener("submit",liftSimulationGenerator)
 
-// disabling buttons while a lift is moving
-function disableButtons(){
-    document.querySelectorAll(".button-container *").forEach(el => {
-        el.disabled = false;
-        el.style.opacity = "0.5"
-    })
-}
-// enabling buttons when no lift is moving
-function enableButtons(){
-    document.querySelectorAll(".button-container *").forEach(el => {
-        el.disabled = false;
-        el.style.opacity = "1"
-    })
-}
-
 // moving lift when pressed on up button
 function moveLiftUp(event){
+    console.log("lift moving up function")
     let id = null
     function findAvailableLift() {
         for(let i = 0;i<storeData.length;i++){
-            if(event.target.dataset.floor > storeData[i].pos){
+            if(event.target.dataset.floor > storeData[i].pos && !storeData[i].busy){
                 return storeData[i].id
             }
         }
@@ -101,21 +87,22 @@ function moveLiftUp(event){
     }
 
     const availableLift = findAvailableLift()
-   console.log(availableLift)
     if(availableLift !== 0){
         const elem = document.querySelector(`[data-lift="${availableLift}"]`)
         const floorHeight = document.querySelector(`[data-floor="${event.target.dataset.floor}"].floor-container`).offsetHeight
         let pos = (elem.style.bottom).match(/(\d+)/) ? (elem.style.bottom).match(/(\d+)/)[0] : 0
         let counter = 0
-        
-        disableButtons()
+        storeData[availableLift-1].busy = true
+      
+        storeData[availableLift-1].target = floorHeight * (event.target.dataset.floor - storeData[availableLift-1].pos)
         id = setInterval(liftMovement, 10);
-        baseCaseVal = floorHeight * (event.target.dataset.floor - storeData[availableLift-1].pos) 
-       
+         
+   
         function liftMovement() {
-            if (counter === baseCaseVal) {
+            if (counter === storeData[availableLift-1].target) {
                 storeData[availableLift-1].pos = Number(event.target.dataset.floor)
-                enableButtons()
+                storeData[availableLift-1].busy = false
+                storeData[availableLift-1].target = null
                 clearInterval(id)
             } 
             else {
@@ -131,10 +118,11 @@ function moveLiftUp(event){
 }
 // moving lift when pressed on down button
 function moveLiftDown(event){
+   
     let id = null
     function findAvailableLift() {
         for(let i = 0;i<storeData.length;i++){
-            if(event.target.dataset.floor < storeData[i].pos){
+            if(event.target.dataset.floor < storeData[i].pos && !storeData[i].busy){
                 return storeData[i].id
             }
         }
@@ -142,21 +130,24 @@ function moveLiftDown(event){
     }
 
     const availableLift = findAvailableLift()
+    console.log(availableLift)
    
     if(availableLift !== 0){
         const elem = document.querySelector(`[data-lift="${availableLift}"]`)
         const floorHeight = document.querySelector(`[data-floor="${event.target.dataset.floor}"].floor-container`).offsetHeight
         let pos = (elem.style.bottom).match(/(\d+)/) ? (elem.style.bottom).match(/(\d+)/)[0] : 0
         let counter = 0
+        storeData[availableLift-1].busy = true
         
-        disableButtons()
+        storeData[availableLift-1].target  = floorHeight * (storeData[availableLift-1].pos - event.target.dataset.floor) 
         id = setInterval(liftMovement, 10);
-        baseCaseVal = floorHeight * (storeData[availableLift-1].pos - event.target.dataset.floor) 
-     
+        
+        
         function liftMovement() {
-            if (counter === baseCaseVal) {
+            if (counter === storeData[availableLift-1].target) {
                 storeData[availableLift-1].pos = Number(event.target.dataset.floor)
-                enableButtons()
+                storeData[availableLift-1].busy = false
+                storeData[availableLift-1].target = null
                 clearInterval(id)
             } 
             else {
