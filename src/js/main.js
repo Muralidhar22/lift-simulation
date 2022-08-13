@@ -1,6 +1,10 @@
 const inputForm = document.querySelector(".input-form")
 const liftContainer = document.querySelector(".lift-container")
-const storeData = [] 
+const state = {
+    lifts: [],
+    floors: {}
+}
+const queue = []
 
 function liftSimulationGenerator(event){
     event.preventDefault() //preventing page reload after form submit
@@ -13,42 +17,36 @@ function liftSimulationGenerator(event){
 
     const numberOfFloors = Number(event.target[0].value)
     const numberOfLifts = Number(event.target[1].value)
-    if(numberOfLifts === 0 || numberOfFloors === 0) alert("Please enter valid number of lifts/floors")
+    if(numberOfLifts <= 0 || numberOfFloors <= 0){
+     event.target[0].value = ''; event.target[1].value = ''
+     alert("Please enter valid number of lifts/floors")
+    }    
     else addLiftsAndFloors(numberOfFloors, numberOfLifts)
-   
 }
+   
+
 function addLiftsAndFloors(nof,nol){
+    // creating floors
     for(let i = 0;i <= nof;i++){
         const floorContainer = document.createElement("div")
-        const liftUpBtn = document.createElement("button")
-        const liftDownBtn = document.createElement("button")
-        const floorNumber = document.createElement("h2")
-        const btnContainer = document.createElement("button-container")
-        
+
         floorContainer.className = "floor-container"
         floorContainer.setAttribute("data-floor",i)
 
-        btnContainer.className = "button-container"
-        liftUpBtn.setAttribute("data-floor",i)
-        liftUpBtn.appendChild(document.createTextNode("Up"))
-        liftUpBtn.className = "up"
-
-        liftDownBtn.setAttribute("data-floor",i)
-        liftDownBtn.appendChild(document.createTextNode("Down"))
-        liftDownBtn.className = "down"
-        
-        floorNumber.className = "floor-number"
-        floorNumber.appendChild(document.createTextNode(`Floor - ${i}`))
-
-        btnContainer.append(liftUpBtn, liftDownBtn)
-        floorContainer.append(btnContainer,floorNumber)
+        floorContainer.innerHTML = `
+        <div class="button-container">
+           ${i !== nof ? `<button class="up" data-floor=${i}>⬆</button>` : ``} 
+           ${i !== 0 ? `<button class="down" data-floor=${i}>⬇</button>` : ``}
+        </div>
+        <h2 class="floor-number">Floor - ${i}</h2>
+        `
         
         document.querySelector(".lift-container").prepend(floorContainer)
     } 
-
+   // creating lifts
     for(let i = 1; i <= nol; i++){
         const lift = document.createElement("div")
-
+        
         lift.className = "lift"
         lift.setAttribute("data-lift",i)
         // styling of lift
@@ -59,108 +57,104 @@ function addLiftsAndFloors(nof,nol){
     }
     // initialising lift positions
     document.querySelectorAll(".lift").forEach((element,index) => {
-        storeData[index] = {id:element.dataset.lift, pos: 0, busy: false ,target: null}
+        state.lifts[index] = {id:element.dataset.lift, pos: 0, busy: false, liftHeight: 0}
     })
+    
     
 
     document.querySelectorAll(".button-container .up").forEach(element => {
-        element.addEventListener("click",moveLiftUp)
+        element.addEventListener("click",(event) => liftCallHandler(event,event.target.dataset.floor))
     })
     
     document.querySelectorAll(".button-container .down").forEach(element => {
-        element.addEventListener("click",moveLiftDown)
+        element.addEventListener("click",(event) => liftCallHandler(event,event.target.dataset.floor))
     })
 }
 inputForm.addEventListener("submit",liftSimulationGenerator)
 
-// moving lift when pressed on up button
-function moveLiftUp(event){
-    console.log("lift moving up function")
-    let id = null
-    function findAvailableLift() {
-        for(let i = 0;i<storeData.length;i++){
-            if(event.target.dataset.floor > storeData[i].pos && !storeData[i].busy){
-                return storeData[i].id
-            }
-        }
-        return 0
-    }
 
-    const availableLift = findAvailableLift()
-    if(availableLift !== 0){
-        const elem = document.querySelector(`[data-lift="${availableLift}"]`)
-        const floorHeight = document.querySelector(`[data-floor="${event.target.dataset.floor}"].floor-container`).offsetHeight
-        let pos = (elem.style.bottom).match(/(\d+)/) ? (elem.style.bottom).match(/(\d+)/)[0] : 0
-        let counter = 0
-        storeData[availableLift-1].busy = true
-      
-        storeData[availableLift-1].target = floorHeight * (event.target.dataset.floor - storeData[availableLift-1].pos)
-        id = setInterval(liftMovement, 10);
+
+function liftCallHandler(event,floor){
+    const destFloor = Number(floor)
+    try{
+        if(state.floors[destFloor].assigned){
+            console.log("already called and assigned")
+            return
+        }
+    }
+    catch{
+        event.target.classList.add("active")
+        console.log("not called and assigned")
+        // pass
+    }
+    // MOVE LIFT
+    function moveLift(lift){
+        console.log("available lift:",lift,Math.abs(destFloor - state.lifts[lift-1].pos))
+        const liftEl = document.querySelector(`[data-lift="${lift}"]`)
+        const currentLiftHeight = state.lifts[lift-1].liftHeight
+        const multiplier = destFloor - state.lifts[lift-1].pos
+        if(multiplier >= 0){
+            var translateValue = (100*Math.abs(multiplier)) + currentLiftHeight
+        }
+        else{
+            var translateValue = currentLiftHeight - (100*Math.abs(multiplier))
+        }
+        liftEl.style.transform= `translateY(-${translateValue}px)`
+        liftEl.style.transition = `transform ${Math.abs(multiplier)*2}s linear`
+        // updating state of lift height from ground
+        state.lifts[lift-1].liftHeight = translateValue
          
-   
-        function liftMovement() {
-            if (counter === storeData[availableLift-1].target) {
-                storeData[availableLift-1].pos = Number(event.target.dataset.floor)
-                storeData[availableLift-1].busy = false
-                storeData[availableLift-1].target = null
-                clearInterval(id)
-            } 
-            else {
-                counter++;
-                pos++; 
-                elem.style.bottom = pos + "px"
+        setTimeout(
+            () => {
+                liftEl.classList.add("active")  
+                setTimeout(
+                    () => {
+                        event.target.classList.remove("active")
+                        delete state.floors[destFloor];
+                        state.lifts[lift-1].pos = destFloor;
+                        state.lifts[lift-1].busy = false;
+                        liftEl.classList.remove("active")
+                        if(queue.length > 0){
+                            liftCallHandler(queue[queue.length - 1].event,queue[queue.length - 1].id)
+                            queue.pop()
+                        }
+                    }
+               ,5000 )
             }
-        }
-    }
-    else{
-        alert("No lifts available")
-    }
-}
-// moving lift when pressed on down button
-function moveLiftDown(event){
-   
-    let id = null
-    function findAvailableLift() {
-        for(let i = 0;i<storeData.length;i++){
-            if(event.target.dataset.floor < storeData[i].pos && !storeData[i].busy){
-                return storeData[i].id
-            }
-        }
-        return 0
-    }
-
-    const availableLift = findAvailableLift()
-    console.log(availableLift)
-   
-    if(availableLift !== 0){
-        const elem = document.querySelector(`[data-lift="${availableLift}"]`)
-        const floorHeight = document.querySelector(`[data-floor="${event.target.dataset.floor}"].floor-container`).offsetHeight
-        let pos = (elem.style.bottom).match(/(\d+)/) ? (elem.style.bottom).match(/(\d+)/)[0] : 0
-        let counter = 0
-        storeData[availableLift-1].busy = true
-        
-        storeData[availableLift-1].target  = floorHeight * (storeData[availableLift-1].pos - event.target.dataset.floor) 
-        id = setInterval(liftMovement, 10);
-        
-        
-        function liftMovement() {
-            if (counter === storeData[availableLift-1].target) {
-                storeData[availableLift-1].pos = Number(event.target.dataset.floor)
-                storeData[availableLift-1].busy = false
-                storeData[availableLift-1].target = null
-                clearInterval(id)
-            } 
-            else {
-                counter++;
-                pos--; 
-                elem.style.bottom = pos + "px"
-            }
-        }
-    }
-    else{
-        alert("No lifts available")
+        ,2000 * Math.abs(multiplier))
     }
     
+    function findNearestAvailableLift(){
+        let nearestAvailableLift = null
+        let counter = 0
+            for(let i = 0;i<state.lifts.length;i++){
+                if(!state.lifts[i].busy){
+                    if(counter === 0){
+                        nearestAvailableLift = state.lifts[i].id
+                        counter++;
+                    }
+                    else{
+                        currentAvailabeLiftDistance = Math.abs(state.lifts[nearestAvailableLift-1].pos - destFloor)
+                        newAvailableLiftDistance = Math.abs(state.lifts[i].pos - destFloor)
+                        if(newAvailableLiftDistance < currentAvailabeLiftDistance){
+                            nearestAvailableLift = state.lifts[i].id
+                        }
+                    }
+                }
+            }
+             
+            if(nearestAvailableLift !== null){
+                state.lifts[nearestAvailableLift - 1].busy = true
+                state.floors[destFloor] = {assigned: nearestAvailableLift}
+               moveLift(nearestAvailableLift)
+            }
+            else{
+                queue.unshift({id: destFloor,event,assigned: null})
+                console.log("queue added:",queue)
+            }
+       
+}
+  findNearestAvailableLift() 
 }
 
 

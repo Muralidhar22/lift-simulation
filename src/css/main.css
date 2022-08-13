@@ -43,19 +43,13 @@ input {
 
 .button-container button {
     border: none;
-    border-radius: .125rem;
-    color: white;
-    padding: .5em;
+    font-size: 1.5rem;
     cursor: pointer;
-}
-
-.button-container .up {
-    background: green;
 
 }
 
-.button-container .down {
-    background: red;
+.button-container button.active {
+    background-color: rgb(255, 215, 0);
 }
 
 
@@ -63,10 +57,15 @@ input {
 /* floor styling */
 .floor-container {
     border-bottom: 2px solid black;
+    height: 100px;
+    position: relative;
 }
 
 .floor-number {
     text-align: right;
+    position: absolute;
+    bottom: 0;
+    right: 0;
 }
 
 /* lift styling */
@@ -77,9 +76,16 @@ input {
 .lift {
     position: absolute;
     left: 25%;
-    width: 40px;
+    width: 45px;
     height: 50px;
     background: royalblue;
     bottom: 0;
-    /* margin-bottom: 2rem; */
+    padding: 5px 2px;
+}
+
+.lift.active::before {
+    content: url(../stick-figure.png);
+    position: relative;
+    bottom: 0;
+
 }
