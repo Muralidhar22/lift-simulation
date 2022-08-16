@@ -21,7 +21,14 @@ function liftSimulationGenerator(event){
      event.target[0].value = ''; event.target[1].value = ''
      alert("Please enter valid number of lifts/floors")
     }    
-    else addLiftsAndFloors(numberOfFloors, numberOfLifts)
+    else {
+        if(screen.width <= 550 && numberOfLifts <= 3) addLiftsAndFloors(numberOfFloors, numberOfLifts)
+        else if(screen.width <= 1150 && screen.width > 550 && numberOfLifts <= 5) addLiftsAndFloors(numberOfFloors, numberOfLifts)
+        else if(screen.width > 1150 && numberOfLifts <= 10) addLiftsAndFloors(numberOfFloors, numberOfLifts)
+        else {
+            document.querySelector(".generate-lift-btn").textContent = "Maximum lifts exceeded"
+        }
+    }
 }
    
 
@@ -35,10 +42,10 @@ function addLiftsAndFloors(nof,nol){
 
         floorContainer.innerHTML = `
         <div class="button-container">
-           ${i !== nof ? `<button class="up" data-floor=${i}>⬆</button>` : ``} 
-           ${i !== 0 ? `<button class="down" data-floor=${i}>⬇</button>` : ``}
+           ${i !== nof ? `<button class="up" data-floor=${i} data-direction="up">⬆</button>` : ``} 
+           ${i !== 0 ? `<button class="down" data-floor=${i} data-direction="down">⬇</button>` : ``}
         </div>
-        <h2 class="floor-number">Floor - ${i}</h2>
+        <p class="floor-number">FLOOR - ${i}</p>
         `
         
         document.querySelector(".lift-container").prepend(floorContainer)
@@ -50,7 +57,11 @@ function addLiftsAndFloors(nof,nol){
         lift.className = "lift"
         lift.setAttribute("data-lift",i)
         // styling of lift
-        lift.style.left = (100+(i*60))+"px"
+        lift.style.left = `${(5+(i*20))}`+"%"
+        lift.innerHTML = `
+                        <div class="lift-door left-door"></div>
+                        <div class="lift-door right-door"></div>
+                        `
 
         document.querySelector(".lift-container").append(lift)
       
@@ -72,24 +83,25 @@ function addLiftsAndFloors(nof,nol){
 }
 inputForm.addEventListener("submit",liftSimulationGenerator)
 
+document.querySelector('#no-of-lifts').addEventListener("focus",()=>{
+    document.querySelector(".generate-lift-btn").textContent = "generate"
+})
 
 
 function liftCallHandler(event,floor){
     const destFloor = Number(floor)
+    const direction = event.target.dataset.direction
     try{
-        if(state.floors[destFloor].assigned){
-            console.log("already called and assigned")
+        if(state.floors["F"+destFloor+direction].assigned){
             return
         }
     }
     catch{
         event.target.classList.add("active")
-        console.log("not called and assigned")
         // pass
     }
     // MOVE LIFT
     function moveLift(lift){
-        console.log("available lift:",lift,Math.abs(destFloor - state.lifts[lift-1].pos))
         const liftEl = document.querySelector(`[data-lift="${lift}"]`)
         const currentLiftHeight = state.lifts[lift-1].liftHeight
         const multiplier = destFloor - state.lifts[lift-1].pos
@@ -106,14 +118,20 @@ function liftCallHandler(event,floor){
          
         setTimeout(
             () => {
-                liftEl.classList.add("active")  
+                liftEl.querySelectorAll(".lift *").forEach(
+                    el => {
+                        el.classList.add("active")
+                    }
+                )
                 setTimeout(
                     () => {
                         event.target.classList.remove("active")
-                        delete state.floors[destFloor];
+                        delete state.floors["F"+destFloor+direction];
                         state.lifts[lift-1].pos = destFloor;
                         state.lifts[lift-1].busy = false;
-                        liftEl.classList.remove("active")
+                        liftEl.querySelectorAll(".lift *").forEach(el =>{
+                            el.classList.remove("active")
+                        }) 
                         if(queue.length > 0){
                             liftCallHandler(queue[queue.length - 1].event,queue[queue.length - 1].id)
                             queue.pop()
@@ -144,13 +162,22 @@ function liftCallHandler(event,floor){
             }
              
             if(nearestAvailableLift !== null){
+                
                 state.lifts[nearestAvailableLift - 1].busy = true
-                state.floors[destFloor] = {assigned: nearestAvailableLift}
+                state.floors["F"+destFloor+direction] = { assigned: nearestAvailableLift }
+                
                moveLift(nearestAvailableLift)
             }
             else{
-                queue.unshift({id: destFloor,event,assigned: null})
-                console.log("queue added:",queue)
+                let existingCallInQueue = 0
+                for(const x in queue){
+                    if(Number(queue[x].id) === destFloor && queue[x].direction === direction ){
+                        existingCallInQueue++
+                    }
+                }
+                if (existingCallInQueue === 0) {
+                 queue.unshift({id: destFloor,event,assigned: null,direction})
+                }
             }
        
 }

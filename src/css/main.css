@@ -15,18 +15,31 @@ input {
     font-family: inherit;
 }
 
-/* utilities */
-.highlight {
-    background: yellow;
+label {
+    display: block;
+}
+
+header {
+    width: 300px;
+    margin: 0 auto;
+}
+
+.heading {
+    text-align: center;
+}
+
+.source-code {
+    text-align: right;
 }
 
 /* input form styling */
 .input-form {
     display: grid;
     width: fit-content;
-    justify-items: start;
     gap: .5rem;
     margin: 1rem;
+    width: 200px;
+    margin: 0 auto;
 }
 
 .lift-simulation-container {
@@ -39,12 +52,15 @@ input {
     flex-direction: column;
     width: fit-content;
     gap: .65rem;
+    position: absolute;
+    left: 0;
+    top: 20%;
 }
 
 .button-container button {
     border: none;
-    font-size: 1.5rem;
     cursor: pointer;
+    border-radius: 50%;
 
 }
 
@@ -64,8 +80,12 @@ input {
 .floor-number {
     text-align: right;
     position: absolute;
-    bottom: 0;
+    top: 5%;
+    left: 0;
     right: 0;
+    margin: 0 auto;
+    width: fit-content;
+    border: 1px solid black;
 }
 
 /* lift styling */
@@ -75,17 +95,68 @@ input {
 
 .lift {
     position: absolute;
-    left: 25%;
+    display: flex;
+    /* left: 25%; */
     width: 45px;
     height: 50px;
-    background: royalblue;
+    background: grey;
     bottom: 0;
     padding: 5px 2px;
+    z-index: 10;
+    overflow-x: hidden;
+    border-radius: .25rem;
 }
 
-.lift.active::before {
-    content: url(../stick-figure.png);
-    position: relative;
-    bottom: 0;
 
+.lift-door {
+    position: relative;
+    width: 50%;
+    height: 100%;
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.5);
+    border: 1px solid black;
+}
+
+.left-door {
+    left: 0;
+}
+
+.right-door {
+    right: 0;
+}
+
+@keyframes left-door-animate {
+    0% {
+        transform: translateX(0%);
+    }
+
+    50% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(0%);
+    }
+}
+
+@keyframes right-door-animate {
+    0% {
+        transform: translateX(0%);
+    }
+
+    50% {
+        transform: translateX(100%);
+    }
+
+    100% {
+        transform: translateX(0%);
+    }
+}
+
+.left-door.active {
+    animation: left-door-animate 5s linear
+}
+
+.right-door.active {
+    animation: right-door-animate 5s linear
 }

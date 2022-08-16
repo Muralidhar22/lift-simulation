@@ -17,28 +17,24 @@
 <body>
     <header>
         <h1 class="heading">LIFT SIMULATOR</h1>
-        <a href="https://github.com/Muralidhar22/lift-simulation" target="_blank">REPO</a>
-        <span>(source code)</span>
-        <ul>
-            <li><em>Enter the number of lifts and floors to start the simulation</em></li>
-            <li><span class="highlight">Note:</span> <em>Number of lifts and floors entered should be more than
-                    zero</em></li>
-        </ul>
+        <div class="wrapper-div source-code">
+            <a href="https://github.com/Muralidhar22/lift-simulation" target="_blank">REPO</a>
+            <span>(source code)</span>
+        </div>
     </header>
 
     <main class="lift-simulation-container">
         <form class="input-form">
-            <label for="no-of-floors">Floors:
-                <input type="number" name="floors" id="no-of-floors" required>
-            </label>
-            <label for="no-of-lifts">Lifts:
-                <input type="number" name="lifts" id="no-of-lifts" required>
-            </label>
+            <label for="no-of-floors">Enter number of floors:</label>
+            <input type="number" name="floors" id="no-of-floors" required>
+
+            <label for="no-of-lifts">Enter number of lifts:</label>
+            <input type="number" name="lifts" id="no-of-lifts" required>
+
             <button type="submit" class="generate-lift-btn">Generate</button>
         </form>
         <div class="lift-container">
         </div>
-
     </main>
 </body>
 <script src="./src/js/main.js"></script>
