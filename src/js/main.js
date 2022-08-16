@@ -25,7 +25,8 @@ function liftSimulationGenerator(event){
         if(screen.width <= 550 && numberOfLifts <= 3) addLiftsAndFloors(numberOfFloors, numberOfLifts)
         else if(screen.width <= 1150 && screen.width > 550 && numberOfLifts <= 5) addLiftsAndFloors(numberOfFloors, numberOfLifts)
         else if(screen.width > 1150 && numberOfLifts <= 10) addLiftsAndFloors(numberOfFloors, numberOfLifts)
-        else {
+        else if(screen.width > 1440 && numberOfLifts <= 25) addLiftsAndFloors(numberOfFloors, numberOfLifts)
+        else{
             document.querySelector(".generate-lift-btn").textContent = "Maximum lifts exceeded"
         }
     }
@@ -57,7 +58,7 @@ function addLiftsAndFloors(nof,nol){
         lift.className = "lift"
         lift.setAttribute("data-lift",i)
         // styling of lift
-        lift.style.left = `${(5+(i*20))}`+"%"
+        lift.style.left = (15+(i*60))+"px"
         lift.innerHTML = `
                         <div class="lift-door left-door"></div>
                         <div class="lift-door right-door"></div>
