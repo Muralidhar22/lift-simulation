@@ -1,3 +1,4 @@
+import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
 const inputForm = document.querySelector(".input-form")
 const liftContainer = document.querySelector(".lift-container")
 const state = {
@@ -5,6 +6,27 @@ const state = {
     floors: {}
 }
 const queue = []
+const usersCount = document.querySelector(".users-count")
+
+const sock = io.connect("https://lift-sim-be.onrender.com")
+
+sock.emit('newClient',"new client joined....")
+sock.on('newClient',()=>{
+    document.querySelector(".alert-msg-container").classList.add("active")
+    console.log("hey")
+    setTimeout(() =>{
+        document.querySelector(".alert-msg-container").classList.remove("active")
+    },2500)
+})
+sock.on('clientCountUpdate',(data) => {
+    usersCount.innerHTML = data
+})
+sock.on('liftGenerator',(data) => {
+    liftSimulationGenerator(data)
+})
+sock.on('liftCall',(data) =>{
+    liftCallHandler(data[0],data[1])
+})
 
 function liftSimulationGenerator(event){
     event.preventDefault() //preventing page reload after form submit
