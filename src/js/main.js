@@ -42,6 +42,10 @@ function liftSimulationGenerator(event){
     if(numberOfLifts <= 0 || numberOfFloors <= 0){
      event.target[0].value = ''; event.target[1].value = ''
      alert("Please enter valid number of lifts/floors")
+    }
+    if(numberOfFloors > 25) {
+        event.target[0].value = ''; event.target[1].value = ''
+        alert("Number of floors can't be greater than 25")
     }    
     else {
         if(screen.width <= 550 && numberOfLifts <= 3) addLiftsAndFloors(numberOfFloors, numberOfLifts)
